@@ -7,16 +7,15 @@ export default function LoginPage() {
   const router = useRouter();
   const [barcode, setBarcode] = useState("");
   
-  // Ref untuk menyimpan jumlah ketukan dan waktu ketukan terakhir
   const tapCountRef = useRef(0);
   const lastTapTimeRef = useRef(0);
 
-  // LOGIKA SECRET TAP PADA TEKS BIRU
+  // LOGIK SECRET TAP (TEKAN 3 KALI LAJU)
   function handleSecretTap() {
     const currentTime = Date.now();
     const timeDifference = currentTime - lastTapTimeRef.current;
 
-    // Jika ketukan berikutnya terjadi lebih dari 500ms (0.5 detik), reset hitungan ke 1
+    // Jika jeda lebih 0.5 detik, reset hitungan
     if (timeDifference > 500) {
       tapCountRef.current = 1;
     } else {
@@ -25,9 +24,9 @@ export default function LoginPage() {
 
     lastTapTimeRef.current = currentTime;
 
-    // Jika berhasil mengetuk 3 kali berturut-turut dengan cepat (jeda < 500ms)
+    // Tekan 3 kali berturut-turut
     if (tapCountRef.current === 3) {
-      tapCountRef.current = 0; // Reset kaunter
+      tapCountRef.current = 0;
 
       const pilihan = prompt(
         "🔑 AKSES PENTADBIR (PPS) DETECTED!\n\nPilih Destinasi:\n1. Borang Input Rekod Bacaan\n2. Muat Naik Data Murid (/seed)\n\nMasukkan nombor (1 atau 2):"
@@ -44,7 +43,6 @@ export default function LoginPage() {
   function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     if (!barcode) return;
-    // Logika login murid biasa
     router.push(`/dashboard?barcode=${barcode.trim()}`);
   }
 
@@ -66,12 +64,15 @@ export default function LoginPage() {
         textAlign: "center",
         boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
       }}>
-        {/* KETUK TULISAN BIRU INI 3 KALI CEPAT */}
+        {/* TAJUK DENGAN UN-SELECTABLE TEXT (TAK BOLEH HIGHLIGHT BIRU) */}
         <div 
           onClick={handleSecretTap}
           style={{ 
             cursor: "pointer", 
-            userSelect: "none", 
+            WebkitUserSelect: "none",
+            MozUserSelect: "none",
+            msUserSelect: "none",
+            userSelect: "none", // Menghalang teks daripada bertukar jadi biru
             display: "inline-flex", 
             alignItems: "center", 
             gap: "8px",
