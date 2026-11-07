@@ -1,137 +1,130 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { db } from "@/lib/firebase"; // Guna alias @ untuk elak ralat path
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 
-interface Murid {
-  id: string;
-  barcode: string;
-  nama: string;
-  kelas: string;
-  total_xp?: number;
-  total_buku?: number;
-}
+export default function Home() {
+  const router = useRouter();
+  const [barcode, setBarcode] = useState("");
 
-export default function DashboardPage() {
-  const [senaraiMurid, setSenaraiMurid] = useState<Murid[]>([]);
-  const [loading, setLoading] = useState(true);
+  const tapCountRef = useRef(0);
+  const lastTapTimeRef = useRef(0);
 
-  useEffect(() => {
-    const q = query(collection(db, "murid"), orderBy("total_xp", "desc"));
+  // LOGIK SECRET TAP PADA TAJUK (TEKAN 3 KALI LAJU DENGAN JEDA < 500MS)
+  function handleSecretTap() {
+    const currentTime = Date.now();
+    const timeDifference = currentTime - lastTapTimeRef.current;
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data: Murid[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...(doc.data() as Omit<Murid, "id">),
-      }));
-      setSenaraiMurid(data);
-      setLoading(false);
-    });
+    if (timeDifference > 500) {
+      tapCountRef.current = 1;
+    } else {
+      tapCountRef.current += 1;
+    }
 
-    return () => unsubscribe();
-  }, []);
+    lastTapTimeRef.current = currentTime;
 
-  function getBadgeColor(index: number) {
-    if (index === 0) return { bg: "#f59e0b", color: "#000", label: "🥇 Emas" };
-    if (index === 1) return { bg: "#94a3b8", color: "#000", label: "🥈 Perak" };
-    if (index === 2) return { bg: "#b45309", color: "#fff", label: "🥉 Gangsa" };
-    return { bg: "#334155", color: "#f8fafc", label: `#${index + 1}` };
+    if (tapCountRef.current === 3) {
+      tapCountRef.current = 0;
+
+      const pilihan = prompt(
+        "🔑 AKSES PENTADBIR (PPS) DETECTED!\n\nPilih Destinasi:\n1. Borang Input Rekod Bacaan\n2. Muat Naik Data Murid (/seed)\n\nMasukkan nombor (1 atau 2):"
+      );
+
+      if (pilihan === "1") {
+        router.push("/input-rekod-bacaan");
+      } else if (pilihan === "2") {
+        router.push("/seed");
+      }
+    }
+  }
+
+  // BILA MURID TEKAN LOG IN -> PERGI KE RANKING (/dashboard)
+  function handleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    if (!barcode) return;
+    router.push(`/dashboard?barcode=${barcode.trim()}`);
   }
 
   return (
     <div style={{
       minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
       backgroundColor: "#0f172a",
-      color: "#f8fafc",
-      fontFamily: "Arial, Helvetica, sans-serif",
-      fontStyle: "normal",
-      padding: "20px",
-      boxSizing: "border-box"
+      fontFamily: "sans-serif"
     }}>
-      <style jsx global>{`
-        * {
-          font-family: Arial, Helvetica, sans-serif !important;
-          font-style: normal !important;
-        }
-      `}</style>
-
-      <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "30px" }}>
-          <h1 style={{ fontSize: "2rem", color: "#38bdf8", marginBottom: "8px", fontWeight: "bold" }}>
-            🏆 Carta Ranking NILAM Sekolah
-          </h1>
-          <p style={{ color: "#94a3b8", fontSize: "0.95rem" }}>
-            Kedudukan Terkini Murid Berdasarkan Mata NILAM (XP)
-          </p>
+      <div style={{
+        backgroundColor: "#1e293b",
+        padding: "30px",
+        borderRadius: "12px",
+        width: "100%",
+        maxWidth: "360px",
+        textAlign: "center",
+        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3)"
+      }}>
+        {/* TAJUK DENGAN SECRET TAP (UN-SELECTABLE TEXT) */}
+        <div
+          onClick={handleSecretTap}
+          style={{
+            cursor: "pointer",
+            WebkitUserSelect: "none",
+            MozUserSelect: "none",
+            msUserSelect: "none",
+            userSelect: "none",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            marginBottom: "10px"
+          }}
+        >
+          <span style={{ fontSize: "1.2rem" }}>🏰</span>
+          <span style={{ color: "#38bdf8", fontWeight: "bold", fontSize: "1.2rem" }}>
+            Nilam League
+          </span>
         </div>
 
-        <div style={{
-          backgroundColor: "#1e293b",
-          borderRadius: "12px",
-          padding: "20px",
-          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.5)",
-          border: "1px solid #334155"
-        }}>
-          {loading ? (
-            <p style={{ textAlign: "center", padding: "20px", color: "#94a3b8" }}>
-              ⏳ Memuat turun carta kedudukan...
-            </p>
-          ) : senaraiMurid.length === 0 ? (
-            <p style={{ textAlign: "center", padding: "20px", color: "#94a3b8" }}>
-              Tiada data murid dijumpai.
-            </p>
-          ) : (
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                <thead>
-                  <tr style={{ borderBottom: "2px solid #334155", color: "#94a3b8", fontSize: "0.85rem" }}>
-                    <th style={{ padding: "12px 8px" }}>KEDUDUKAN</th>
-                    <th style={{ padding: "12px 8px" }}>NAMA MURID</th>
-                    <th style={{ padding: "12px 8px" }}>KELAS</th>
-                    <th style={{ padding: "12px 8px", textAlign: "right" }}>MATA NILAM (XP)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {senaraiMurid.map((m, index) => {
-                    const badge = getBadgeColor(index);
-                    return (
-                      <tr
-                        key={m.id}
-                        style={{
-                          borderBottom: "1px solid #334155",
-                          backgroundColor: index % 2 === 0 ? "#1e293b" : "#0f172a"
-                        }}
-                      >
-                        <td style={{ padding: "12px 8px" }}>
-                          <span style={{
-                            backgroundColor: badge.bg,
-                            color: badge.color,
-                            padding: "4px 10px",
-                            borderRadius: "12px",
-                            fontWeight: "bold",
-                            fontSize: "0.85rem"
-                          }}>
-                            {badge.label}
-                          </span>
-                        </td>
-                        <td style={{ padding: "12px 8px", fontWeight: "600", color: "#ffffff" }}>
-                          {m.nama}
-                        </td>
-                        <td style={{ padding: "12px 8px", color: "#cbd5e1" }}>
-                          {m.kelas}
-                        </td>
-                        <td style={{ padding: "12px 8px", textAlign: "right", fontWeight: "bold", color: "#38bdf8", fontSize: "1.1rem" }}>
-                          {m.total_xp || 0} <span style={{ fontSize: "0.8rem", color: "#94a3b8" }}>Mata</span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+        <p style={{ color: "#94a3b8", fontSize: "0.9rem", marginTop: "0", marginBottom: "20px" }}>
+          Masukkan Barcode Murid untuk Masuk
+        </p>
+
+        <form onSubmit={handleLogin}>
+          <input
+            type="text"
+            value={barcode}
+            onChange={(e) => setBarcode(e.target.value)}
+            placeholder="Contoh: 0014AK"
+            style={{
+              width: "100%",
+              padding: "12px",
+              boxSizing: "border-box",
+              borderRadius: "6px",
+              border: "1px solid #334155",
+              backgroundColor: "#0f172a",
+              color: "#fff",
+              textAlign: "center",
+              fontSize: "1rem",
+              marginBottom: "15px"
+            }}
+          />
+
+          <button
+            type="submit"
+            style={{
+              width: "100%",
+              padding: "12px",
+              backgroundColor: "#22c55e",
+              color: "#fff",
+              border: "none",
+              borderRadius: "6px",
+              fontWeight: "bold",
+              fontSize: "1rem",
+              cursor: "pointer"
+            }}
+          >
+            LOG IN
+          </button>
+        </form>
       </div>
     </div>
   );
