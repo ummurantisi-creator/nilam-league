@@ -1,26 +1,33 @@
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-export const metadata = {
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
   title: "Nilam League",
   description: "Sistem Rekod & Leaderboard NILAM",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html lang="ms">
-      <head>
-        {/* Memaksa Chrome menggunakan font standar sistem */}
-        <style>{`
-          * {
-            font-family: Arial, Helvetica, sans-serif !important;
-          }
-        `}</style>
-      </head>
-      <body style={{ backgroundColor: "#0f172a", color: "#f8fafc", margin: 0 }}>
+    <html
+      lang="ms"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+    >
+      <body className="min-h-full flex flex-col bg-slate-900 text-slate-100 font-sans">
         {children}
       </body>
     </html>
