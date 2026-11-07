@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { db } from "../../lib/firebase";
+import { db } from "@/lib/firebase"; // Guna alias @ untuk elak ralat path
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 
 interface Murid {
@@ -44,13 +44,12 @@ export default function DashboardPage() {
       minHeight: "100vh",
       backgroundColor: "#0f172a",
       color: "#f8fafc",
-      fontFamily: "Arial, Helvetica, sans-serif", // Paksa guna font biasa clean
+      fontFamily: "Arial, Helvetica, sans-serif",
       fontStyle: "normal",
       padding: "20px",
       boxSizing: "border-box"
     }}>
       <style jsx global>{`
-        /* Mematikan sebarang font Gothic / Old English daripada globals.css */
         * {
           font-family: Arial, Helvetica, sans-serif !important;
           font-style: normal !important;
@@ -58,8 +57,6 @@ export default function DashboardPage() {
       `}</style>
 
       <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-        
-        {/* Header */}
         <div style={{ textAlign: "center", marginBottom: "30px" }}>
           <h1 style={{ fontSize: "2rem", color: "#38bdf8", marginBottom: "8px", fontWeight: "bold" }}>
             🏆 Carta Ranking NILAM Sekolah
@@ -69,7 +66,6 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        {/* Jadual Carta Leaderboard */}
         <div style={{
           backgroundColor: "#1e293b",
           borderRadius: "12px",
@@ -136,7 +132,6 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
-
       </div>
     </div>
   );
