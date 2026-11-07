@@ -26,7 +26,7 @@ export default function RankingPage() {
         list.push(doc.data() as Murid);
       });
 
-      // Tie-breaker: 1. Total XP -> 2. Bilangan Buku Terbanyak
+      // Logik Tie-Breaker: 1. Total XP -> 2. Bilangan Buku Terbanyak
       list.sort((a, b) => {
         const xpA = a.total_xp || 0;
         const xpB = b.total_xp || 0;
