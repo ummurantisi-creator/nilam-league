@@ -18,7 +18,6 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Tarik data murid tersusun mengikut Total XP terbanyak
     const q = query(collection(db, "murid"), orderBy("total_xp", "desc"));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -33,7 +32,6 @@ export default function DashboardPage() {
     return () => unsubscribe();
   }, []);
 
-  // Lencana Warna mengikut Kedudukan Top 3
   function getBadgeColor(index: number) {
     if (index === 0) return { bg: "#f59e0b", color: "#000", label: "🥇 Emas" };
     if (index === 1) return { bg: "#94a3b8", color: "#000", label: "🥈 Perak" };
@@ -44,16 +42,26 @@ export default function DashboardPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      backgroundColor: "#0f172a", // Latar gelap kekal
+      backgroundColor: "#0f172a",
       color: "#f8fafc",
-      fontFamily: "system-ui, -apple-system, sans-serif",
-      padding: "20px"
+      fontFamily: "Arial, Helvetica, sans-serif", // Paksa guna font biasa clean
+      fontStyle: "normal",
+      padding: "20px",
+      boxSizing: "border-box"
     }}>
+      <style jsx global>{`
+        /* Mematikan sebarang font Gothic / Old English daripada globals.css */
+        * {
+          font-family: Arial, Helvetica, sans-serif !important;
+          font-style: normal !important;
+        }
+      `}</style>
+
       <div style={{ maxWidth: "800px", margin: "0 auto" }}>
         
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: "30px" }}>
-          <h1 style={{ fontSize: "2rem", color: "#38bdf8", marginBottom: "8px" }}>
+          <h1 style={{ fontSize: "2rem", color: "#38bdf8", marginBottom: "8px", fontWeight: "bold" }}>
             🏆 Carta Ranking NILAM Sekolah
           </h1>
           <p style={{ color: "#94a3b8", fontSize: "0.95rem" }}>
@@ -65,8 +73,8 @@ export default function DashboardPage() {
         <div style={{
           backgroundColor: "#1e293b",
           borderRadius: "12px",
-          padding: "15px",
-          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.3)",
+          padding: "20px",
+          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.5)",
           border: "1px solid #334155"
         }}>
           {loading ? (
@@ -96,7 +104,7 @@ export default function DashboardPage() {
                         key={m.id}
                         style={{
                           borderBottom: "1px solid #334155",
-                          backgroundColor: index % 2 === 0 ? "transparent" : "#0f172a33"
+                          backgroundColor: index % 2 === 0 ? "#1e293b" : "#0f172a"
                         }}
                       >
                         <td style={{ padding: "12px 8px" }}>
@@ -111,7 +119,7 @@ export default function DashboardPage() {
                             {badge.label}
                           </span>
                         </td>
-                        <td style={{ padding: "12px 8px", fontWeight: "600", color: "#f8fafc" }}>
+                        <td style={{ padding: "12px 8px", fontWeight: "600", color: "#ffffff" }}>
                           {m.nama}
                         </td>
                         <td style={{ padding: "12px 8px", color: "#cbd5e1" }}>
